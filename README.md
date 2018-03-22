@@ -24,3 +24,9 @@ Then compile it with Cargo:
 ```
 cargo build --release
 ```
+
+# Installation
+Simply run this command as root:
+```
+make install
+```
