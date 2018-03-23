@@ -1,26 +1,61 @@
 extern crate regex;
 
 fn main() {
-    let find_string = std::env::args_os().nth(1);
-    if find_string == None {
-        println!("Error: no filename specified!");
-    }
-    else {
-        let find_string = String::from(find_string
-                                       .unwrap()
-                                       .to_str()
-                                       .unwrap()
-                                       .to_lowercase());
+    let args = parse_arguments();
+    let find_regex = regex::Regex::new(String::from(args.find_string.to_lowercase())
+                                       .as_str())
+        .unwrap();
+    let init_path = std::path::Path::new("./");
 
-        let find_regex = regex::Regex::new(find_string
-                                           .as_str())
-            .unwrap();
-        let init_path = std::path::Path::new("./");
-        list_dir(init_path, &find_regex);
+    list_dir(init_path,
+             &find_regex,
+             &args);
+}
+
+struct Arguments
+{
+    color: bool,
+    recursive: bool,
+    find_string: String,
+}
+
+fn parse_arguments() ->Arguments
+{
+    let mut use_color: bool = false;
+    let mut string: String = String::from("");
+    let mut count: i32 = 0;
+    for argument in std::env::args()
+    {
+        if count == 0
+        {
+            count += 1;
+        }
+        else
+        {
+            if argument.get(0..1) == Some("-")
+            {
+                for (index, letter) in argument.chars().enumerate()
+                {
+                    if letter.to_string() == "c"
+                    {
+                        use_color = true;
+                    }
+                }
+            }
+            else if string == ""
+            {
+                string = argument;
+            }
+        }
+    }
+    Arguments {
+        color: use_color,
+        recursive: true,
+        find_string: string,
     }
 }
 
-fn list_dir(dir_name: &std::path::Path, regex: &regex::Regex) -> std::io::Result<()>
+fn list_dir(dir_name: &std::path::Path, regex: &regex::Regex, args: &Arguments) -> std::io::Result<()>
 {
 
     if dir_name.is_dir() {
@@ -34,8 +69,7 @@ fn list_dir(dir_name: &std::path::Path, regex: &regex::Regex) -> std::io::Result
                          .display());
             }
             if entry.path().is_dir() {
-                list_dir(&entry
-                         .path(), &regex);
+                list_dir(&entry.path(), &regex, &args);
             }
         }
     }
