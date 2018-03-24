@@ -26,7 +26,13 @@ struct Arguments
 
 fn parse_arguments() ->Arguments
 {
-    let mut use_color: bool = true;
+    let mut use_color: bool = {
+        match std::env::var_os("NO_COLOR") {
+            None => true,
+            Some(val) => false,
+        }
+    };
+
     let mut string: String = String::from("");
     let mut count: i32 = 0;
     let mut all_directories: bool = false;
