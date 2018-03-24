@@ -2,9 +2,7 @@ extern crate regex;
 
 fn main() {
     let args = parse_arguments();
-    let find_regex = regex::Regex::new(String::from(args.find_string.to_lowercase())
-                                       .as_str())
-        .unwrap();
+    let find_regex = regex::Regex::new(&format!(r"(?i)(?P<match>{})", args.find_string)).unwrap();
     let init_path = std::path::Path::new("./");
 
     list_dir(init_path,
@@ -15,7 +13,6 @@ fn main() {
 struct Arguments
 {
     color: bool,
-    recursive: bool,
     find_string: String,
 }
 
@@ -50,7 +47,6 @@ fn parse_arguments() ->Arguments
     }
     Arguments {
         color: use_color,
-        recursive: true,
         find_string: string,
     }
 }
@@ -61,15 +57,20 @@ fn list_dir(dir_name: &std::path::Path, regex: &regex::Regex, args: &Arguments) 
     if dir_name.is_dir() {
         for entry in std::fs::read_dir(dir_name)? {
             let entry = entry?;
-            if regex.is_match(&format!("{}", entry
-                                       .path()
-                                       .display())) {
-                println!("{}", entry
-                         .path()
-                         .display());
+            if regex.is_match(&format!("{}", entry.path().display())) {
+                let mut print_string;
+                if args.color {
+                        print_string = String::from(regex.replace_all(&format!("{}", entry.path().display()), "\x1B[31m$match\x1B[0m"));
+                }
+                else {
+                    print_string = format!("{}", entry.path().display());
+                }
+                println!("{}", print_string);
             }
             if entry.path().is_dir() {
-                list_dir(&entry.path(), &regex, &args);
+                list_dir(&entry.path(),
+                    &regex,
+                    &args);
             }
         }
     }
