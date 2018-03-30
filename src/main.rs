@@ -29,7 +29,7 @@ fn parse_arguments() ->Arguments
     let mut use_color: bool = {
         match std::env::var_os("NO_COLOR") {
             None => true,
-            Some(val) => false,
+            _ => false,
         }
     };
 
@@ -55,7 +55,7 @@ fn parse_arguments() ->Arguments
                 }
                 else
                 {
-                    for (index, letter) in argument.chars().enumerate()
+                    for letter in argument.chars()
                     {
                         if letter.to_string() == "a"
                         {
