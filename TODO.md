@@ -1,2 +1,2 @@
-* make a true argument parser
-* add the ability to display colored output
+* split files
+* comment code
