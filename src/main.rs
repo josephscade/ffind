@@ -47,6 +47,7 @@ fn parse_arguments() -> Arguments {
                     match argument.as_ref() {
                         "--no-color" => use_color = false,
                         "--debug" => debug_output = true,
+                        "--deep" => all_directories = true,
                         _ => println!("Argument \"{}\" not recognized", argument),
                     }
                 } else {
