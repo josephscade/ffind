@@ -12,7 +12,7 @@ fn main() {
                      &args);
         }
         else {
-            println!("The specified file is a path. Sory");
+            println!("The specified file is a path. Sorry");
         }
     } else {
         println!("No pattern specified! Please specify a pattern.");
