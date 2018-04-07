@@ -1,21 +1,42 @@
 extern crate regex;
+extern crate clap;
 
 fn main() {
-    let args = parse_arguments();
-    if args.find_string != "" {
-        let find_regex = regex::Regex::new(&format!(r"(?i)(?P<match>{})", args.find_string))
-            .unwrap();
-        let init_path = std::path::Path::new("./");
-        if init_path.is_dir() {
-            list_dir(init_path,
-                     &find_regex,
-                     &args);
-        }
-        else {
-            println!("The specified file is a path. Sorry");
-        }
-    } else {
-        println!("No pattern specified! Please specify a pattern.");
+    let matches = clap::App::new("ffind")
+        .version("0.1.0")
+        .author("Leo Pourcelot leo.pourcelot@protonmail.com")
+        .about("A tool to recursively find files and folders in disk")
+        .arg(clap::Arg::with_name("FILENAME")
+             .required(true)
+             .takes_value(true)
+             .index(1)
+             .help("name to find in current working directory"))
+        .arg(clap::Arg::with_name("deep search")
+             .short("d")
+             .long("deep")
+             .required(false))
+        .arg(clap::Arg::with_name("uncolored output")
+             .long("no-color")
+             .required(false))
+        .get_matches();
+
+    let no_color_enabled: bool = match std::env::var_os("NO_COLOR") {
+        None => false,
+        _ => true,
+    };
+    let args = Arguments {
+        hidden_directories: matches.is_present("deep search"),
+        color: !(matches.is_present("uncolored output") || no_color_enabled),
+        find_string: String::from(matches.value_of("FILENAME").unwrap()),
+    };
+
+    let find_regex = regex::Regex::new(&format!(r"(?i)(?P<match>{})", args.find_string))
+        .unwrap();
+    let init_path = std::path::Path::new("./");
+    if init_path.is_dir() {
+        list_dir(init_path,
+                 &find_regex,
+                 &args);
     }
 }
 
@@ -23,53 +44,6 @@ struct Arguments {
     hidden_directories: bool,
     color: bool,
     find_string: String,
-    debug: bool,
-}
-
-fn parse_arguments() -> Arguments {
-    let mut use_color: bool = {
-        match std::env::var_os("NO_COLOR") {
-            None => true,
-            _ => false,
-        }
-    };
-
-    let mut string: String = String::from("");
-    let mut count: i32 = 0;
-    let mut all_directories: bool = false;
-    let mut debug_output: bool = false;
-    for argument in std::env::args() {
-        if count == 0 {
-            count += 1;
-        } else {
-            if argument.get(0..1) == Some("-") {
-                if argument.get(1..2) == Some("-") {
-                    match argument.as_ref() {
-                        "--no-color" => use_color = false,
-                        "--debug" => debug_output = true,
-                        "--deep" => all_directories = true,
-                        _ => println!("Argument \"{}\" not recognized", argument),
-                    }
-                } else {
-                    for letter in argument.chars() {
-                        match letter {
-                            'a' => all_directories = true,
-                            'd' => debug_output = true,
-                            _ => println!("The argument {} is not recognized. Processing without it", letter),
-                        }
-                    }
-                }
-            } else if string == "" {
-                string = argument;
-            }
-        }
-    }
-    Arguments {
-        color: use_color,
-        find_string: string,
-        hidden_directories: all_directories,
-        debug: debug_output,
-    }
 }
 
 fn list_dir(
@@ -113,8 +87,5 @@ fn list_dir(
                 }
             }
         }
-    }
-    else if args.debug {
-        println!("Skipping \"{}\": no permission", dir_name.display());
     }
 }

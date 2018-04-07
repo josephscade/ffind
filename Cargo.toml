@@ -5,3 +5,4 @@ authors = ["josephscade <leo.pourcelot@protonmail.com>"]
 
 [dependencies]
 regex = "0.2"
+clap = "~2.27.0"
