@@ -38,17 +38,20 @@ fn main() {
         None => false,
         _ => true,
     };
+    // creation of the regex which will be used for searching
+    let regex = regex::Regex::new(&format!(r"(?i)(?P<match>{})", matches.value_of("FILENAME").unwrap())).unwrap();
+
+
     // creation argument struct which let us carry informations about ffind's behavour
     let args = arguments::Arguments {
         hidden_directories: matches.is_present("deep search"),
         color: !(matches.is_present("uncolored output") || no_color_enabled),
-        find_string: String::from(matches.value_of("FILENAME").unwrap()),
+        find_regex: regex,
     };
     // creation of the searching regex
-    let find_regex = regex::Regex::new(&format!(r"(?i)(?P<match>{})", args.find_string)).unwrap();
     let init_path = std::path::Path::new("./");
 
     if init_path.is_dir() {
-        dir_walk::list_dir(init_path, &find_regex, &args);
+        dir_walk::list_dir(init_path, &args);
     }
 }
