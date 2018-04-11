@@ -11,17 +11,19 @@ pub fn list_dir(dir_name: &std::path::Path, args: &arguments::Arguments) {
             // error checking (eg: permission denied)
             if !entry.is_err() {
                 let entry = entry.unwrap();
-                // check if the first letter of the file or folder is a '.'
-                // TODO : disable this check if the hidden_directories is enabled
-                let can_walk_trought: bool = entry
-                    .path()
-                    .components()
-                    .last()
-                    .unwrap()
-                    .as_os_str()
-                    .to_str()
-                    .unwrap()
-                    .get(0..1) != Some(".");
+                // check if the first letter of the file or folder is a '.', unless we have deep search enbabled
+                let mut can_walk_trought: bool = false;
+                if !args.hidden_directories {
+                    can_walk_trought = entry
+                        .path()
+                        .components()
+                        .last()
+                        .unwrap()
+                        .as_os_str()
+                        .to_str()
+                        .unwrap()
+                        .get(0..1) != Some(".");
+                }
                 if can_walk_trought || args.hidden_directories {
                     // check if it is a match
                     if args.find_regex.is_match(&format!("{}", entry.path().display())) {
