@@ -4,45 +4,65 @@ use arguments;
 
 // function which walk throught folders to look for a named file or directory
 pub fn list_dir(dir_name: &std::path::Path, args: &arguments::Arguments) {
+    // check for the rights in the directory
     match std::fs::read_dir(dir_name) {
         Err(_) => {}
+        // if it is OK, then we loop for every element in the directory
         Ok(entries) => for wraped_entry in entries {
-            let entry = wraped_entry.unwrap();
-            let can_walk_trought: bool = match args.hidden_directories {
-                true => true,
-                false => {
-                    match entry
-                        .path()
-                        .components()
-                        .last()
-                        .unwrap()
-                        .as_os_str()
-                        .to_str()
-                        .unwrap()
-                        .get(0..1)
-                    {
-                        Some(i) => match i {
-                            "." => false,
-                            _ => true,
-                        },
-                        None => false,
+            // we check for errors (eg: permission errors)
+            match wraped_entry {
+                Err(_) => {},
+                Ok(entry) => {
+                    // if the entry is a folder, then we try to schedule a search
+                    // therefore we have to know if the directory is "hidden"
+                    // but we first check if we have to search in hidden
+                    // directories or not
+                    // if we haven't, then we look for the directory's first letter
+                    // if this is a ".", then we don't dive in it, otherwise, we do
+                    if entry.metadata().unwrap().is_dir() {
+                        if match args.hidden_directories {
+                            true => true,
+                            false => match entry
+                                .path()
+                                .components()
+                                .last()
+                                .unwrap()
+                                .as_os_str()
+                                .to_str()
+                                .unwrap()
+                                .get(0..1)
+                            {
+                                // although this is a bit tricky, it works: if we
+                                // can't unwrap the value, then it is a non-ASCII
+                                // value, so it is not a ".".
+                                // consequently we are able to dive in it
+                                Some(i) => match i {
+                                    "." => false,
+                                    _ => true,
+                                },
+                                None => false,
+                            },
+                        } {
+                            list_dir(&entry.path(), &args);
+                        }
                     }
-                }
-            };
-            if can_walk_trought && entry.metadata().unwrap().is_dir() {
-                list_dir(&entry.path(), &args);
-            }
-            if args.find_regex
-                .is_match(entry.path().as_path().to_str().unwrap())
-            {
-                let printed_string: String = match args.color {
-                    false => entry.path().as_path().to_str().unwrap().to_string(),
-                    true => String::from(args.find_regex.replace_all(
-                        entry.path().as_path().to_str().unwrap(),
-                        "\x1B[31m$match\x1B[0m",
-                    )),
-                };
-                println!("{}", printed_string);
+                    // we look if the entry matches the regex provided by the user
+                    if args.find_regex
+                        .is_match(entry.path().as_path().to_str().unwrap())
+                    {
+                        // if it is, we create a string which contains either the
+                        // coloured match or the uncoloured one
+                        let printed_string: String = match args.color {
+                            false => entry.path().as_path().to_str().unwrap().to_string(),
+                            true => String::from(args.find_regex.replace_all(
+                                entry.path().as_path().to_str().unwrap(),
+                                "\x1B[31m$match\x1B[0m",
+                            )),
+                        };
+                        // then we print it
+                        println!("{}", printed_string);
+                    }
+                },
             }
         },
     }
