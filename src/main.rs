@@ -32,11 +32,16 @@ fn main() {
                 .required(false),
         )
         .arg(
-            clap::Arg::with_name("Searching dir")
+            clap::Arg::with_name("searching dir")
                 .long("dir")
+                .takes_value(true)
                 .required(false),
         )
         .get_matches();
+    let path = match matches.value_of("searching dir") {
+        Some(value) => value,
+        None => "./",
+    };
     // checking for the "NO_COLOR" environment variable:
     // if it's present, then content must be printed colorless
     let no_color_enabled: bool = match std::env::var_os("NO_COLOR") {
@@ -56,6 +61,6 @@ fn main() {
         find_regex: regex,
     };
     // creation of the initial searching path
-    let init_path = std::path::Path::new("./");
+    let init_path = std::path::Path::new(path);
     dir_walk::list_dir(init_path, &args);
 }
