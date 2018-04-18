@@ -1,4 +1,3 @@
-// TODO: add the regex in the struct
 extern crate regex;
 
 pub struct Arguments {
