@@ -11,7 +11,7 @@ pub fn list_dir(dir_name: &std::path::Path, args: &arguments::Arguments) {
         Ok(entries) => for wraped_entry in entries {
             // we check for errors (eg: permission errors)
             match wraped_entry {
-                Err(_) => {},
+                Err(_) => {}
                 Ok(entry) => {
                     // if the entry is a folder, then we try to schedule a search
                     // therefore we have to know if the directory is "hidden"
@@ -62,7 +62,7 @@ pub fn list_dir(dir_name: &std::path::Path, args: &arguments::Arguments) {
                         // then we print it
                         println!("{}", printed_string);
                     }
-                },
+                }
             }
         },
     }
