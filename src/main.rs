@@ -31,6 +31,11 @@ fn main() {
                 .long("no-color")
                 .required(false),
         )
+        .arg(
+            clap::Arg::with_name("Searching dir")
+                .long("dir")
+                .required(false),
+        )
         .get_matches();
     // checking for the "NO_COLOR" environment variable:
     // if it's present, then content must be printed colorless
@@ -39,8 +44,10 @@ fn main() {
         _ => true,
     };
     // creation of the regex which will be used for searching
-    let regex = regex::Regex::new(&format!(r"(?i)(?P<match>{})", matches.value_of("FILENAME").unwrap())).unwrap();
-
+    let regex = regex::Regex::new(&format!(
+        r"(?i)(?P<match>{})",
+        matches.value_of("FILENAME").unwrap()
+    )).unwrap();
 
     // creation argument struct which let us carry informations about ffind's behavour
     let args = arguments::Arguments {
