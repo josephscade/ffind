@@ -60,7 +60,6 @@ fn main() {
         color: !(matches.is_present("uncolored output") || no_color_enabled),
         find_regex: regex,
     };
-    // creation of the initial searching path
-    let init_path = std::path::Path::new(path);
-    dir_walk::list_dir(init_path, &args);
+    // initial search
+    dir_walk::list_dir(std::path::Path::new(path), &args);
 }
