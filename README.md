@@ -12,7 +12,7 @@ $ ffind filename
 
 By default, ffind doesn't dive into .something folders. If you want to enable deep search, issue:
 ```
-$ffind -a filename
+$ffind -d filename
 ./path/to/filename
 ```
 
@@ -20,6 +20,12 @@ Or:
 ```
 $ ffind --deep filename
 ./path/to/filename
+```
+
+By default, ffind searches in the current directory. If you want to search in another folder, then this command is made for you:
+```
+$ ffind --dir=/bin bash
+/bin/bash
 ```
 
 The output is colorized by default. If you want an uncolorized output, then you can set the `NO_COLOR` variable or use this command:
@@ -38,13 +44,7 @@ Then you have to install the following dependencies:
 * rust
 * cargo
 
-Then compile it with Cargo:
+Then compile install it with Cargo:
 ```
-cargo build --release
-```
-
-# Installation
-Simply run this command as root:
-```
-make install
+cargo install
 ```
