@@ -8,7 +8,7 @@ mod arguments;
 
 fn main() {
     // creation of an application (usefull for argument parsing and error handling)
-    let matches = clap::App::new("ffind")
+    let matches: clap::ArgMatches = clap::App::new("ffind")
         .setting(clap::AppSettings::ColorNever)
         .version("0.1.0")
         .author("Leo Pourcelot leo.pourcelot@protonmail.com")
@@ -39,7 +39,7 @@ fn main() {
         )
         .get_matches();
     // create the path value according to the arguments
-    let path = match matches.value_of("searching dir") {
+    let path: &str = match matches.value_of("searching dir") {
         Some(value) => value,
         None => "./",
     };
@@ -53,13 +53,13 @@ fn main() {
             _ => true,
         };
         // creation of the regex which will be used for searching
-        let regex = regex::Regex::new(&format!(
+        let regex: regex::Regex = regex::Regex::new(&format!(
             r"(?i)(?P<match>{})",
             matches.value_of("FILENAME").unwrap()
         )).unwrap();
 
         // creation argument struct which let us carry informations about ffind's behavour
-        let args = arguments::Arguments {
+        let args: arguments::Arguments = arguments::Arguments {
             hidden_directories: matches.is_present("deep search"),
             color: !(matches.is_present("uncolored output") || no_color_enabled),
             find_regex: regex,
