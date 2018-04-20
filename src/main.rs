@@ -38,28 +38,35 @@ fn main() {
                 .required(false),
         )
         .get_matches();
+    // create the path value according to the arguments
     let path = match matches.value_of("searching dir") {
         Some(value) => value,
         None => "./",
     };
-    // checking for the "NO_COLOR" environment variable:
-    // if it's present, then content must be printed colorless
-    let no_color_enabled: bool = match std::env::var_os("NO_COLOR") {
-        None => false,
-        _ => true,
-    };
-    // creation of the regex which will be used for searching
-    let regex = regex::Regex::new(&format!(
-        r"(?i)(?P<match>{})",
-        matches.value_of("FILENAME").unwrap()
-    )).unwrap();
+    // changing it as a std::path::Path and checking it is valid
+    let path: &std::path::Path = std::path::Path::new(path);
+    if path.exists() {
+        // checking for the "NO_COLOR" environment variable:
+        // if it's present, then content must be printed colorless
+        let no_color_enabled: bool = match std::env::var_os("NO_COLOR") {
+            None => false,
+            _ => true,
+        };
+        // creation of the regex which will be used for searching
+        let regex = regex::Regex::new(&format!(
+            r"(?i)(?P<match>{})",
+            matches.value_of("FILENAME").unwrap()
+        )).unwrap();
 
-    // creation argument struct which let us carry informations about ffind's behavour
-    let args = arguments::Arguments {
-        hidden_directories: matches.is_present("deep search"),
-        color: !(matches.is_present("uncolored output") || no_color_enabled),
-        find_regex: regex,
-    };
-    // initial search
-    dir_walk::list_dir(std::path::Path::new(path), &args);
+        // creation argument struct which let us carry informations about ffind's behavour
+        let args = arguments::Arguments {
+            hidden_directories: matches.is_present("deep search"),
+            color: !(matches.is_present("uncolored output") || no_color_enabled),
+            find_regex: regex,
+        };
+        // initial search
+        dir_walk::list_dir(&path, &args);
+    } else {
+        println!("The provided path is not valid!\nTip: consider changing it.");
+    }
 }
