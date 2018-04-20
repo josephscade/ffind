@@ -5,10 +5,8 @@ use arguments;
 // function which walk throught folders to look for a named file or directory
 pub fn list_dir(dir_name: &std::path::Path, args: &arguments::Arguments) {
     // check for the rights in the directory
-    match std::fs::read_dir(dir_name) {
-        Err(_) => {}
-        // if it is OK, then we loop for every element in the directory
-        Ok(entries) => for wraped_entry in entries {
+    if let Ok(entries) = std::fs::read_dir(dir_name) {
+        for wraped_entry in entries {
             // we check for errors (eg: permission errors)
             match wraped_entry {
                 Err(_) => {}
@@ -64,6 +62,6 @@ pub fn list_dir(dir_name: &std::path::Path, args: &arguments::Arguments) {
                     }
                 }
             }
-        },
+        }
     }
 }
