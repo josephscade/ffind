@@ -1,3 +1,4 @@
+extern crate atty;
 extern crate clap;
 extern crate regex;
 
@@ -48,10 +49,12 @@ fn main() {
     if path.exists() {
         // checking for the "NO_COLOR" environment variable:
         // if it's present, then content must be printed colorless
-        let no_color_enabled: bool = match std::env::var_os("NO_COLOR") {
-            None => false,
-            _ => true,
-        };
+        let no_color_enabled: bool =
+            std::env::var_os("NO_COLOR").is_some()
+            // Additionally, by default, do not use color in a TTY.
+            // TODO: Add a way to override this.
+            || atty::is(atty::Stream::Stdin)
+            || atty::is(atty::Stream::Stdout);
         // creation of the regex which will be used for searching
         let regex: regex::Regex = regex::Regex::new(&format!(
             r"(?i)(?P<match>{})",

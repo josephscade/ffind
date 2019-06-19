@@ -46,5 +46,5 @@ Then you have to install the following dependencies:
 
 Then compile install it with Cargo:
 ```
-cargo install
+cargo install --path ffind/
 ```

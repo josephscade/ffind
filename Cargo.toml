@@ -4,5 +4,6 @@ version = "0.1.0"
 authors = ["josephscade <leo.pourcelot@protonmail.com>"]
 
 [dependencies]
-regex = "0.2"
+atty = "*"
 clap = "~2.27.0"
+regex = "0.2"
